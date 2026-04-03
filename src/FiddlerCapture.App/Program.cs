@@ -1,4 +1,8 @@
+<<<<<<< HEAD
 // See https://aka.ms/new-console-template for more information
+=======
+﻿// See https://aka.ms/new-console-template for more information
+>>>>>>> 93925c7 (add fiddler capture skill and titanium proxy host)
 using FiddlerCapture.Engine;
 using FiddlerCapture.SemanticKernel;
 using Microsoft.Extensions.DependencyInjection;

@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 <Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
@@ -7,6 +8,17 @@
     <Nullable>enable</Nullable>
   </PropertyGroup>
 
+=======
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <TargetFramework>net8.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+  </PropertyGroup>
+
+>>>>>>> 93925c7 (add fiddler capture skill and titanium proxy host)
   <ItemGroup>
     <ProjectReference Include="..\FiddlerCapture.Engine\FiddlerCapture.Engine.csproj" />
     <ProjectReference Include="..\FiddlerCapture.SemanticKernel\FiddlerCapture.SemanticKernel.csproj" />
