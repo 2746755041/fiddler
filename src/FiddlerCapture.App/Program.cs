@@ -8,6 +8,8 @@ using FiddlerCapture.SemanticKernel;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
+using System.Globalization;
 
 var builder = Host.CreateApplicationBuilder(args);
 
@@ -29,7 +31,45 @@ builder.Services.AddSingleton<NetworkCapturePlugin>();
 builder.Services.AddHostedService<CaptureConsoleStatusService>();
 
 using var host = builder.Build();
+
+if (CliCaptureOnceArgs.IsEnabled(args))
+{
+    await RunCaptureOnceAsync(host, args).ConfigureAwait(false);
+    return;
+}
+
 await host.RunAsync().ConfigureAwait(false);
+
+static async Task RunCaptureOnceAsync(IHost host, string[] args)
+{
+    var options = host.Services.GetRequiredService<IOptionsMonitor<FiddlerCaptureOptions>>().CurrentValue;
+    var engine = host.Services.GetRequiredService<IFiddlerCaptureEngine>();
+    var plugin = host.Services.GetRequiredService<NetworkCapturePlugin>();
+
+    var durationSeconds = CliCaptureOnceArgs.GetInt(args, "--duration", 30);
+    var limit = CliCaptureOnceArgs.GetInt(args, "--limit", 200);
+
+    durationSeconds = Math.Max(5, durationSeconds);
+    limit = Math.Max(10, limit);
+
+    await host.StartAsync().ConfigureAwait(false);
+
+    plugin.ClearSessions();
+    await engine.StartCaptureAsync().ConfigureAwait(false);
+
+    Console.WriteLine($"Capture started on 127.0.0.1:{options.ListenPort}. Running for {durationSeconds}s...");
+    await Task.Delay(TimeSpan.FromSeconds(durationSeconds)).ConfigureAwait(false);
+
+    await engine.StopCaptureAsync().ConfigureAwait(false);
+
+    var sessions = plugin.GetRecentSessions(limit: limit);
+    var analysis = plugin.AnalyzeTraffic(limit: limit);
+
+    var report = TrafficReportWriter.BuildReport(options, TimeSpan.FromSeconds(durationSeconds), limit, sessions, analysis);
+    Console.WriteLine(report);
+
+    await host.StopAsync().ConfigureAwait(false);
+}
 
 internal sealed class CaptureConsoleStatusService : IHostedService
 {
@@ -70,5 +110,39 @@ internal sealed class CaptureConsoleStatusService : IHostedService
         var state = _plugin.GetCaptureState();
         _logger.LogInformation("App stopping. Final cached session count: {CachedSessions}", state.CachedSessions);
         return Task.CompletedTask;
+    }
+}
+
+internal static class CliCaptureOnceArgs
+{
+    public static bool IsEnabled(string[] args)
+    {
+        return args.Any(arg => string.Equals(arg, "--capture-once", StringComparison.OrdinalIgnoreCase));
+    }
+
+    public static int GetInt(string[] args, string name, int defaultValue)
+    {
+        for (var i = 0; i < args.Length; i++)
+        {
+            var current = args[i];
+            if (string.Equals(current, name, StringComparison.OrdinalIgnoreCase))
+            {
+                if (i + 1 < args.Length && int.TryParse(args[i + 1], NumberStyles.Integer, CultureInfo.InvariantCulture, out var value))
+                {
+                    return value;
+                }
+            }
+
+            if (current.StartsWith(name + "=", StringComparison.OrdinalIgnoreCase))
+            {
+                var raw = current[(name.Length + 1)..];
+                if (int.TryParse(raw, NumberStyles.Integer, CultureInfo.InvariantCulture, out var value))
+                {
+                    return value;
+                }
+            }
+        }
+
+        return defaultValue;
     }
 }
