@@ -1,0 +1,7 @@
+interface:
+  display_name: "FiddlerCore .NET Capture"
+  short_description: "Build FiddlerCore capture and SK plugins."
+  default_prompt: "Use $fiddlercore-dotnet-capture to add a FiddlerCore capture engine and Semantic Kernel plugin to this .NET solution."
+
+policy:
+  allow_implicit_invocation: true

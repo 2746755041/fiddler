@@ -1,0 +1,13 @@
+<Project>
+  <PropertyGroup>
+    <ManagePackageVersionsCentrally>true</ManagePackageVersionsCentrally>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageVersion Include="FiddlerCore" Version="6.*" />
+    <PackageVersion Include="Microsoft.Extensions.Hosting.Abstractions" Version="8.*" />
+    <PackageVersion Include="Microsoft.Extensions.Logging.Abstractions" Version="8.*" />
+    <PackageVersion Include="Microsoft.Extensions.Options" Version="8.*" />
+    <PackageVersion Include="Microsoft.SemanticKernel" Version="1.*" />
+  </ItemGroup>
+</Project>
