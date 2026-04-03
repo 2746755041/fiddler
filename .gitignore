@@ -1,0 +1,15 @@
+bin/
+obj/
+.vs/
+.idea/
+.dotnet-home/
+.nuget/
+.tmp_nupkg/
+.tmp_nupkg.zip
+*.log
+*.binlog
+FiddlerCore.Trial.6.0.0.nupkg
+EULA.txt
+*.user
+*.suo
+*.nupkg
